@@ -121,7 +121,7 @@ class PaymentDetailsView(oscar_views.PaymentDetailsView):
     def _save_order(self, order_number, submission):
         # Finalize the order that PaymentDetailsView.submit() started
         # If all is ok with payment, try and place order
-        logger.info(u"Order #%s: payment started, placing order", order_number)
+        logger.info("Order #%s: payment started, placing order", order_number)
 
         try:
             # Call OrderPlacementMixin.handle_order_placement()
@@ -134,8 +134,8 @@ class PaymentDetailsView(oscar_views.PaymentDetailsView):
             # actually place an order.  Not a good situation to be in as a
             # payment transaction may already have taken place, but needs
             # to be handled gracefully.
-            logger.error(u"Order #%s: unable to place order - %s", order_number, e, exc_info=True)
-            msg = unicode(e)
+            logger.error("Order #%s: unable to place order - %s", order_number, e, exc_info=True)
+            msg = str(e)
             self.restore_frozen_basket()
             return self.render_to_response(self.get_context_data(error=msg))
 

@@ -12,8 +12,8 @@ import suds.client
 import suds.plugin
 from django.core.urlresolvers import reverse
 from django.utils.translation import get_language
-from urllib import urlencode
-from urllib2 import URLError
+from urllib.parse import urlencode
+from urllib.error import URLError
 from suds.sax.element import Element
 from oscar_docdata import appsettings, __version__ as oscar_docdata_version
 from oscar_docdata.exceptions import DocdataCreateError, DocdataStatusError, DocdataStartError, DocdataCancelError, OrderKeyMissing
@@ -115,7 +115,7 @@ class DocdataAPIVersionPlugin(suds.plugin.MessagePlugin):
 
 
 def log_docdata_error(soap_error, message, *args, **kwargs):
-    logger.error(u"{0}: code={1}, error={2}".format(message, soap_error._code, soap_error.value), *args, **kwargs)
+    logger.error("{0}: code={1}, error={2}".format(message, soap_error._code, soap_error.value), *args, **kwargs)
 
 
 class DocdataClient(object):
@@ -615,12 +615,12 @@ class Name(object):
         # Assigning values is perhaps very Java-esque, but it's very obvious too
         # what's happening here, while keeping Python-like constructor argument styles.
         node = factory.create('ns0:name')
-        node.first = unicode(self.first)
-        node.middle = unicode(self.middle) if self.middle else None
-        node.last = unicode(self.last)
-        node.initials = unicode(self.initials) if self.initials else None
-        node.prefix = unicode(self.prefix) if self.prefix else None
-        node.suffix = unicode(self.suffix) if self.suffix else None
+        node.first = str(self.first)
+        node.middle = str(self.middle) if self.middle else None
+        node.last = str(self.last)
+        node.initials = str(self.initials) if self.initials else None
+        node.prefix = str(self.prefix) if self.prefix else None
+        node.suffix = str(self.suffix) if self.suffix else None
         return node
 
 
@@ -742,7 +742,7 @@ class Address(object):
         if appsettings.DOCDATA_HOUSE_NUMBER_FIELD:
             value = getattr(address, appsettings.DOCDATA_HOUSE_NUMBER_FIELD)
             if value and value.isdigit():
-                house_number = unicode(int(value))
+                house_number = str(int(value))
 
         return cls(
             street=address.line1[:32],       # Docdata has a 32 char limit on street
@@ -756,21 +756,21 @@ class Address(object):
 
     def to_xml(self, factory):
         country = factory.create('ns0:country')
-        country._code = unicode(self.country_code)
+        country._code = str(self.country_code)
 
         node = factory.create('ns0:address')
-        node.street = unicode(self.street)
-        node.houseNumber = unicode(self.house_number)  #string35
-        node.houseNumberAddition = unicode(self.house_number_addition) if self.house_number_addition else None
-        node.postalCode = unicode(self.postal_code.replace(' ', ''))  # Spaces aren't allowed in the Docdata postal code (type=NMTOKEN)
-        node.city = unicode(self.city)
-        node.state = unicode(self.state) if self.state else None
+        node.street = str(self.street)
+        node.houseNumber = str(self.house_number)  #string35
+        node.houseNumberAddition = str(self.house_number_addition) if self.house_number_addition else None
+        node.postalCode = str(self.postal_code.replace(' ', ''))  # Spaces aren't allowed in the Docdata postal code (type=NMTOKEN)
+        node.city = str(self.city)
+        node.state = str(self.state) if self.state else None
         node.country = country
 
         # Optional company info
-        node.company = unicode(self.company) if self.company else None
-        node.vatNumber = unicode(self.vatNumber) if self.vatNumber else None
-        node.careOf = unicode(self.careOf) if self.careOf else None
+        node.company = str(self.company) if self.company else None
+        node.vatNumber = str(self.vatNumber) if self.vatNumber else None
+        node.careOf = str(self.careOf) if self.careOf else None
         return node
 
 
@@ -928,7 +928,7 @@ class Invoice(object):
         node.item = [item.to_xml(factory) for item in self.items]
         node.shipTo = self.ship_to.to_xml(factory)
         if self.additional_description:
-            node.additionalDescription = unicode(self.additional_description)  # max 100
+            node.additionalDescription = str(self.additional_description)  # max 100
         return node
 
 
@@ -960,7 +960,7 @@ class Item(object):
         :param image_url: URL to the items image (max 2048)
         """
         # Support simple values too
-        if isinstance(quantity, (int, long)):
+        if isinstance(quantity, int):
             quantity = Quantity(quantity, unit='PCS')
 
         self.number = number
@@ -1009,11 +1009,11 @@ class Item(object):
     def to_xml(self, factory):
         node = factory.create('ns0:item')
         node._number = self.number
-        node.name = unicode(self.name)
-        node.code = unicode(self.code)
+        node.name = str(self.name)
+        node.code = str(self.code)
         node.quantity = self.quantity.to_xml(factory)
-        node.description = unicode(self.description or '-')
-        node.image = unicode(self.image_url) if self.image_url else None
+        node.description = str(self.description or '-')
+        node.image = str(self.image_url) if self.image_url else None
         node.netAmount = self.net_amount.to_xml(factory)
         node.grossAmount = self.gross_amount.to_xml(factory)
         node.vat = self.vat.to_xml(factory)
@@ -1065,7 +1065,7 @@ class AmexPayment(Payment):
         node.creditCardNumber = self.credit_card_number
         node.expiryDate = self.expiry_date
         node.cid = self.cid
-        node.cardHolder = unicode(self.card_holder)
+        node.cardHolder = str(self.card_holder)
         node.emailAddress = self.email_address
         return node
 
@@ -1081,7 +1081,7 @@ class MasterCardPayment(Payment):
         self.credit_card_number = credit_card_number
         self.expiry_date = expiry_date
         self.cvc2 = cvc2
-        self.card_holder = unicode(card_holder)
+        self.card_holder = str(card_holder)
         self.email_address = email_address
 
     def to_xml(self, factory):
@@ -1089,7 +1089,7 @@ class MasterCardPayment(Payment):
         node.creditCardNumber = self.credit_card_number
         node.expiryDate = self.expiry_date
         node.cvc2 = self.cvc2
-        node.cardHolder = unicode(self.card_holder)
+        node.cardHolder = str(self.card_holder)
         node.emailAddress = self.email_address
         return node
 
@@ -1113,8 +1113,8 @@ class DirectDebitPayment(Payment):
         country._code = self.holder_country_code
 
         node = factory.create('ns0:directDebitPaymentInput')
-        node.holderName = unicode(self.holder_name)
-        node.holderCity = unicode(self.holder_city)
+        node.holderName = str(self.holder_name)
+        node.holderCity = str(self.holder_city)
         node.holderCountry = country
         node.bic = self.bic
         node.iban = self.iban

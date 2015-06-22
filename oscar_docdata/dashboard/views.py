@@ -89,7 +89,7 @@ class DocdataOrderUpdateStatusView(SingleObjectMixin, View):
         except DocdataStatusError as e:
             messages.error(request, e.value)
         else:
-            messages.info(request, u"Order status is updated")
+            messages.info(request, "Order status is updated")
 
         return HttpResponseRedirect(reverse('docdata-order-detail', args=(self.object.pk,)))
 
@@ -115,6 +115,6 @@ class DocdataOrderCancelView(DeleteView):
         except DocdataCancelError as e:
             messages.error(request, e.value)
         else:
-            messages.info(request, _(u'The order "{order_id}" was cancelled successfully.').format(order_id=self.object.merchant_order_id))
+            messages.info(request, _('The order "{order_id}" was cancelled successfully.').format(order_id=self.object.merchant_order_id))
 
         return HttpResponseRedirect(reverse('docdata-order-detail', args=(self.object.pk,)))

@@ -52,16 +52,16 @@ class Command(BaseCommand):
                 try:
                     order = qs.get(merchant_order_id=order_number)
                 except DocdataOrder.DoesNotExist:
-                    self.stderr.write(u"- Order does not exist: {0}\n".format(order_number))
+                    self.stderr.write("- Order does not exist: {0}\n".format(order_number))
                     continue
                 else:
                     if only_status and order.status != only_status:
-                        self.stderr.write(u"- Order {0} does not have status {1}, but {2}\n".format(order_number, only_status, order.status))
+                        self.stderr.write("- Order {0} does not have status {1}, but {2}\n".format(order_number, only_status, order.status))
                         continue
                     orders.append(order)
 
         for order in orders:
-            self.stdout.write(u"- Checking {0}\n".format(order.merchant_order_id))
+            self.stdout.write("- Checking {0}\n".format(order.merchant_order_id))
 
             with transaction.atomic():
                 # First request the order at docdata, avoid expiring an order which missed an update (very unlikely)
@@ -69,10 +69,10 @@ class Command(BaseCommand):
                 try:
                     facade.update_order(order)
                 except DocdataStatusError as e:
-                    self.stderr.write(u"{0}\n".format(e))
+                    self.stderr.write("{0}\n".format(e))
                     continue
 
                 if order.status == old_status:
-                    self.stderr.write(u"  Order {0} status unchanged, remained: {1}".format(order.merchant_order_id, order.status))
+                    self.stderr.write("  Order {0} status unchanged, remained: {1}".format(order.merchant_order_id, order.status))
                 else:
-                    self.stdout.write(u"  Order {0} status changed from {1} to {2}".format(order.merchant_order_id, old_status, order.status))
+                    self.stdout.write("  Order {0} status changed from {1} to {2}".format(order.merchant_order_id, old_status, order.status))

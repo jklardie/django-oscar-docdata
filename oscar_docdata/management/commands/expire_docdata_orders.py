@@ -33,13 +33,13 @@ class Command(NoArgsCommand):
         facade = get_facade()
 
         if is_dry_run:
-            self.stdout.write(u"Expiring orders (DRY-RUN):")
+            self.stdout.write("Expiring orders (DRY-RUN):")
         else:
-            self.stdout.write(u"Expiring orders:")
+            self.stdout.write("Expiring orders:")
 
         for order in qs.iterator():
             # Will loop through all one by one, so signals can be properly fired:
-            self.stdout.write(u"- {0}\t(created {1:%Y-%m-%d}, still {2})".format(order.merchant_order_id, order.created, order.status))
+            self.stdout.write("- {0}\t(created {1:%Y-%m-%d}, still {2})".format(order.merchant_order_id, order.created, order.status))
 
             # Will update
             old_status = order.status
@@ -51,9 +51,9 @@ class Command(NoArgsCommand):
                     facade.update_order(order)
                     if order.status not in expire_status_choices:
                         if order.status == DocdataOrder.STATUS_EXPIRED:
-                            self.stdout.write(u"  Updated order {0} via status API, detected expired state".format(order.merchant_order_id))
+                            self.stdout.write("  Updated order {0} via status API, detected expired state".format(order.merchant_order_id))
                         else:
-                            self.stderr.write(u"  Skipping order {0}, status changed to: {1}".format(order.merchant_order_id, order.status))
+                            self.stderr.write("  Skipping order {0}, status changed to: {1}".format(order.merchant_order_id, order.status))
                     else:
                         # More efficient SQL
                         DocdataOrder.objects.filter(id=order.id).update(status=DocdataOrder.STATUS_EXPIRED)
@@ -62,5 +62,5 @@ class Command(NoArgsCommand):
                             # Make sure Oscar is updated, and the signal is sent.
                             facade.order_status_changed(order, old_status, order.status)
                         except Exception as e:
-                            self.stderr.write(u"Failed to update order {0}: {1}".format(order.id, e))
+                            self.stderr.write("Failed to update order {0}: {1}".format(order.id, e))
                             DocdataOrder.objects.filter(id=order.id).update(status=old_status)

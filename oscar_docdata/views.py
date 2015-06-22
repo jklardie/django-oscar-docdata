@@ -50,7 +50,7 @@ class UpdateOrderMixin(object):
             return DocdataOrder.objects.select_for_update().active_merchants().get(**{self.order_slug_field: order_slug})
         except DocdataOrder.DoesNotExist:
             logger.error("Order {0}='%s' not found to update payment status.".format(self.order_slug_field), order_slug)
-            raise Http404(u"Order {0}='{1}' not found!".format(self.order_slug_field, order_slug))
+            raise Http404("Order {0}='{1}' not found!".format(self.order_slug_field, order_slug))
 
     def update_order(self, order):
         # Ask the facade to request the status, and update the order accordingly.
@@ -176,4 +176,4 @@ class StatusChangedNotificationView(UpdateOrderMixin, View):
         responses = status_changed_view_called.send(sender=self.__class__, request=request, order=self.order)
 
         # Return 200 as required by DocData when the status changed notification was consumed.
-        return HttpResponse(u"ok, order {0} updated\n".format(order_key), content_type='text/plain; charset=utf-8')
+        return HttpResponse("ok, order {0} updated\n".format(order_key), content_type='text/plain; charset=utf-8')

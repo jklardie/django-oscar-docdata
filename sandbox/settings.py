@@ -292,7 +292,7 @@ OSCAR_ORDER_STATUS_PIPELINE = {
     'shipping': ('delivered', 'refunded', 'charged back'),
     'delivered': ('refunded', 'charged back'),
 }
-OSCAR_ORDER_STATUS_PIPELINE['unknown'] = OSCAR_ORDER_STATUS_PIPELINE.keys()
+OSCAR_ORDER_STATUS_PIPELINE['unknown'] = list(OSCAR_ORDER_STATUS_PIPELINE.keys())
 
 OSCAR_LINE_STATUS_PIPELINE = OSCAR_ORDER_STATUS_PIPELINE
 

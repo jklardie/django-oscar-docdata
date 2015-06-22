@@ -18,7 +18,7 @@ class Command(NoArgsCommand):
         Update the status.
         """
         status = options.get('status', DocdataOrder.STATUS_PAID)
-        all_status_choices = dict(DocdataOrder.STATUS_CHOICES).keys()
+        all_status_choices = list(dict(DocdataOrder.STATUS_CHOICES).keys())
         if status and status not in all_status_choices:
             raise CommandError("Invalid status, valid choices are: {0}".format(", ".join(sorted(all_status_choices))))
 
